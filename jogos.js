@@ -1,44 +1,49 @@
 'use strict'
 
-async function pesquisarJogo(jogo) {
-    const url = `https://api.allorigins.win/get?url=${encodeURIComponent('https://www.freetogame.com/api/games?category=' + jogo)}` // Entra na API
-    const response = await fetch(url) // Procura item na API
-
-    const data = await response.json() // Transforma o que o response recebe em JSON
-
-    // Convertendo a string JSON contida em `data.contents` para um objeto
-    const gamesData = JSON.parse(data.contents) 
-
-    const fotoimg = []
-
-    console.log(gamesData)
-
-    gamesData.forEach(function(jogo) {
-        fotoimg.push(jogo.thumbnail)
-    })
-
-    return fotoimg
+async function pesquisarGames(jogo){
+    const url = `https://api.allorigins.win/get?url=${encodeURIComponent('https://www.freetogame.com/api/games?category=' + jogo)}`
+    const response = await fetch(url)
+    
+    const data = await response.json()
+    return JSON.parse(data.contents)
 }
 
-function criarImagem(link) {
+async function criarJogo(jogo){
     const galeria = document.getElementById('galeria')
-    const novaImg = document.createElement('img')
+    const novoJogo = document.createElement('div')
+    novoJogo.classList.add('card')
+    
+    const imagem = document.createElement('img')
+    imagem.src = jogo.thumbnail
+    imagem.alt = jogo.title
 
-    novaImg.src = link
-    galeria.appendChild(novaImg)
+    const titulo = document.createElement('h3')
+    titulo.textContent = jogo.title
+
+    const descricao = document.createElement('p')
+    descricao.textContent = jogo.short_description
+
+    novoJogo.appendChild(imagem)
+    novoJogo.appendChild(titulo)
+    novoJogo.appendChild(descricao)
+    galeria.appendChild(novoJogo)
 }
 
-async function preencherFotos() {
+async function preencherGames(){
     const jogo = document.getElementById('jogo').value
-    const fotos = await pesquisarJogo(jogo)
-
-    console.log(fotos)
-
+    const games = await pesquisarGames(jogo)
     const galeria = document.getElementById('galeria')
+   
+    galeria.replaceChildren('');
 
-    galeria.replaceChildren('')
-    fotos.forEach(criarImagem)
+    if (games.length === 0){
+        const mensagem = document.createElement('p')
+        mensagem.textContent = 'Nenhum jogo encontrado.'
+        galeria.appendChild(mensagem)
+        return
+    }
+
+    games.forEach(criarJogo)
 }
 
-document.getElementById('pesquisar')
-    .addEventListener('click', preencherFotos)
+document.getElementById('pesquisar').addEventListener('click', preencherGames)
