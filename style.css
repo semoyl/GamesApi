@@ -21,7 +21,6 @@ body{
 #galeria{
     display: columns;
     columns: 5;
-    padding-left: 300px;
 }
 
 #galeria img{
